@@ -1,5 +1,6 @@
 # Build stage
 FROM golang:alpine AS builder
+ENV GOPROXY=https://proxy.golang.org,https://goproxy.io,direct
 WORKDIR /app
 COPY shared/ ./shared/
 COPY services/emergency-service/ ./services/emergency-service/
