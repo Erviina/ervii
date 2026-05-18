@@ -20,15 +20,23 @@ func NewMenuHandler(s service.MenuService) *MenuHandler {
 	return &MenuHandler{service: s}
 }
 
-// Routes returns the chi router for menu service.
-func (h *MenuHandler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Post("/", h.Create)
-	r.Get("/{id}", h.GetByID)
-	r.Put("/{id}", h.Update)
-	r.Delete("/{id}", h.Delete)
-	r.Get("/", h.Search)
-	return r
+// RegisterRoutes registers all menu routes on the given chi router.
+func (h *MenuHandler) RegisterRoutes(r chi.Router) {
+	r.Route("/api/v1/menus", func(r chi.Router) {
+		r.Post("/", h.Create)
+		r.Get("/{id}", h.GetByID)
+		r.Put("/{id}", h.Update)
+		r.Delete("/{id}", h.Delete)
+		r.Get("/", h.Search)
+	})
+}
+
+// HealthCheck handles GET /health.
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	utils.SuccessResponse(w, http.StatusOK, map[string]string{
+		"status":  "healthy",
+		"service": "menu-service",
+	})
 }
 
 // Create handles the POST / request.
