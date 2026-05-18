@@ -5,7 +5,7 @@ pipeline {
         DOCKER_REGISTRY = 'registry.furab.io'
         KUBE_NAMESPACE  = 'furab'
         GO_VERSION      = '1.22'
-        GOPROXY         = 'https://proxy.golang.org,https://goproxy.io,direct'
+        GOPROXY         = 'https://goproxy.io,direct'
     }
 
     stages {
