@@ -23,7 +23,7 @@ for dir in services/*/; do
     echo "--- Building: $service ---"
     
     if [ -f "$dir/Dockerfile" ]; then
-        docker build \
+        docker build --network=host \
             -t "${REGISTRY}/${service}:${TAG}" \
             -f "$dir/Dockerfile" \
             . 2>&1 || echo "[WARN] Build failed for $service"
@@ -37,7 +37,7 @@ done
 echo ""
 echo "--- Building: api-gateway ---"
 if [ -f "gateway/api-gateway/Dockerfile" ]; then
-    docker build \
+    docker build --network=host \
         -t "${REGISTRY}/api-gateway:${TAG}" \
         -f "gateway/api-gateway/Dockerfile" \
         . 2>&1 || echo "[WARN] Build failed for api-gateway"
