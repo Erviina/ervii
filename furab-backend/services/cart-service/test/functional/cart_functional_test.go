@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -42,27 +43,52 @@ func TestMain(m *testing.M) {
 	dbPassword := getEnvOrDefault("DB_PASSWORD", "furab_secret")
 	dbName := getEnvOrDefault("DB_NAME", "cart_service")
 
+	// Step 1: Connect to default postgres DB first to create cart_service DB if not exists
+	adminDSN := fmt.Sprintf("postgres://%s:%s@%s:%s/postgres?sslmode=disable",
+		dbUser, dbPassword, dbHost, dbPort)
+
+	adminDB, err := sql.Open("pgx", adminDSN)
+	if err != nil {
+		log.Fatalf("Failed to open connection to default database: %v", err)
+	}
+
+	// Wait for DB to be ready
+	for i := 0; i < 30; i++ {
+		err = adminDB.Ping()
+		if err == nil {
+			break
+		}
+		log.Printf("Waiting for default database... attempt %d/30: %v", i+1, err)
+		time.Sleep(1 * time.Second)
+	}
+	if err != nil {
+		log.Fatalf("Could not connect to default database after 30 attempts: %v", err)
+	}
+
+	// Create database if not exists
+	_, err = adminDB.Exec(fmt.Sprintf("CREATE DATABASE %s", dbName))
+	if err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			log.Fatalf("Failed to create database %s: %v", dbName, err)
+		}
+		log.Printf("Database %s already exists, skipping creation.\n", dbName)
+	} else {
+		log.Printf("Database %s created successfully.\n", dbName)
+	}
+	adminDB.Close()
+
+	// Step 2: Connect to the actual cart_service DB
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	var err error
 	testDB, err = sql.Open("pgx", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to test database: %v", err)
 	}
 	defer testDB.Close()
 
-	// Wait for DB to be ready
-	for i := 0; i < 30; i++ {
-		err = testDB.Ping()
-		if err == nil {
-			break
-		}
-		log.Printf("Waiting for database... (%d/30)", i+1)
-		time.Sleep(1 * time.Second)
-	}
-	if err != nil {
-		log.Fatalf("Database is not ready: %v", err)
+	if err := testDB.Ping(); err != nil {
+		log.Fatalf("Failed to ping test database: %v", err)
 	}
 	log.Println("Database connected!")
 
