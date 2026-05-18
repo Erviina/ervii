@@ -11,7 +11,13 @@ pipeline {
         // Stage 1: Checkout repository
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                    extensions: scm.extensions + [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true, timeout: 30]],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
                 powershell 'Write-Host "Checked out branch: $env:GIT_BRANCH"'
             }
         }
