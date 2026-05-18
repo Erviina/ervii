@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"furab-backend/services/promo-service/internal/model"
+	"furab-backend/services/promo-service/internal/repository"
 	"furab-backend/services/promo-service/internal/service"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -74,7 +74,7 @@ func TestMain(m *testing.M) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	var err error
+
 	testDB, err = sql.Open("pgx", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to test database: %v", err)

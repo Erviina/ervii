@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 	adminDSN := fmt.Sprintf("postgres://%s:%s@%s:%s/postgres?sslmode=disable", dbUser, dbPassword, dbHost, dbPort)
 	if envDsn := os.Getenv("TEST_DB_DSN"); envDsn != "" {
 		// Replace dbname in envDsn with postgres
-		adminDSNFormula = envDsn // simple fallback, or we can parse/replace
+		adminDSN = envDsn // simple fallback, or we can parse/replace
 	}
 
 	adminDB, err := sql.Open("postgres", adminDSN)
@@ -90,7 +90,7 @@ func TestMain(m *testing.M) {
 		dsn = envDsn
 	}
 
-	var err error
+
 	testDB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to test database: %v", err)

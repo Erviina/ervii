@@ -79,7 +79,7 @@ func TestMain(m *testing.M) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	var err error
+
 	testDB, err = sql.Open("pgx", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
