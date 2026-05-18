@@ -1,6 +1,7 @@
 # Build stage
 FROM golang:alpine AS builder
 ENV GOPROXY=https://goproxy.io,direct
+RUN apk add --no-cache git
 WORKDIR /app
 COPY shared/ ./shared/
 COPY services/cart-service/ ./services/cart-service/
