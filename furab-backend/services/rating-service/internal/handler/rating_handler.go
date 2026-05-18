@@ -20,15 +20,23 @@ func NewRatingHandler(s service.RatingService) *RatingHandler {
 	return &RatingHandler{service: s}
 }
 
-// Routes returns the chi router for rating service.
-func (h *RatingHandler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Post("/", h.Create)
-	r.Get("/{id}", h.GetByID)
-	r.Put("/{id}", h.Update)
-	r.Delete("/{id}", h.Delete)
-	r.Get("/", h.Search)
-	return r
+// RegisterRoutes registers all rating routes on the given chi router.
+func (h *RatingHandler) RegisterRoutes(r chi.Router) {
+	r.Route("/api/v1/ratings", func(r chi.Router) {
+		r.Post("/", h.Create)
+		r.Get("/{id}", h.GetByID)
+		r.Put("/{id}", h.Update)
+		r.Delete("/{id}", h.Delete)
+		r.Get("/", h.Search)
+	})
+}
+
+// HealthCheck handles GET /health.
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	utils.SuccessResponse(w, http.StatusOK, map[string]string{
+		"status":  "healthy",
+		"service": "rating-service",
+	})
 }
 
 // Create handles the POST / request.

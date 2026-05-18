@@ -20,16 +20,25 @@ func NewMerchantHandler(s service.MerchantService) *MerchantHandler {
 	return &MerchantHandler{service: s}
 }
 
-// Routes returns the chi router for merchant service.
-func (h *MerchantHandler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Post("/", h.Create)
-	r.Get("/{id}", h.GetByID)
-	r.Put("/{id}", h.Update)
-	r.Delete("/{id}", h.Delete)
-	r.Get("/", h.Search)
-	return r
+// RegisterRoutes registers all merchant routes on the given chi router.
+func (h *MerchantHandler) RegisterRoutes(r chi.Router) {
+	r.Route("/api/v1/merchants", func(r chi.Router) {
+		r.Post("/", h.Create)
+		r.Get("/{id}", h.GetByID)
+		r.Put("/{id}", h.Update)
+		r.Delete("/{id}", h.Delete)
+		r.Get("/", h.Search)
+	})
 }
+
+// HealthCheck handles GET /health.
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	utils.SuccessResponse(w, http.StatusOK, map[string]string{
+		"status":  "healthy",
+		"service": "merchant-service",
+	})
+}
+
 
 // Create handles the POST / request.
 func (h *MerchantHandler) Create(w http.ResponseWriter, r *http.Request) {
